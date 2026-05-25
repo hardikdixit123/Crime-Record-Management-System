@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Crimes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Crimes / FIRs</h3>
+    <a href="{{ url_for('crimes_new') }}" class="btn btn-primary">+ Register New Crime</a>
+</div>
+
+<form method="GET" class="row g-3 mb-3">
+    <div class="col-md-3">
+        <label class="form-label">FIR Number</label>
+        <input type="text" name="fir" class="form-control"
+               value="{{ fir_filter }}">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-select">
+            <option value="">All</option>
+            {% for st in case_statuses %}
+                <option value="{{ st }}" {% if st == status_filter %}selected{% endif %}>
+                    {{ st }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Section No (IPC)</label>
+        <input type="text" name="section_no" class="form-control"
+               placeholder="e.g. 302" value="{{ section_filter }}">
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-success w-100">Search</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>FIR No.</th>
+            <th>Title</th>
+            <th>Police Station</th>
+            <th>District</th>
+            <th>Primary Section</th>
+            <th>Status</th>
+            <th>Officer</th>
+            <th>View</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if crimes %}
+            {% for c in crimes %}
+            <tr>
+                <td>{{ c.fir_number }}</td>
+                <td>{{ c.title }}</td>
+                <td>{{ c.police_station }}</td>
+                <td>{{ c.district }}</td>
+                <td>
+                    {% if c.code %}
+                        {{ c.code }} {{ c.section_no }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ c.status }}</td>
+                <td>{{ c.officer_name or '-' }}</td>
+                <td>
+                    <a href="{{ url_for('crime_detail', crime_id=c.crime_id) }}"
+                       class="btn btn-sm btn-outline-primary">Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No crimes found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

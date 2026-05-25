@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Crime Detail{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Crime Detail</h3>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">{{ crime.title }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+            FIR: {{ crime.fir_number }} |
+            PS: {{ crime.police_station }} |
+            District: {{ crime.district }} |
+            State: {{ crime.state }}
+        </h6>
+        <p class="card-text">
+            {{ crime.description or "No detailed description available." }}
+        </p>
+        <p class="mb-1">
+            <strong>Primary Section:</strong>
+            {% if crime.code %}
+                {{ crime.code }} {{ crime.section_no }} – {{ crime.offence_name }}
+            {% else %}
+                Not set
+            {% endif %}
+        </p>
+        <p class="mb-1">
+            <strong>Investigating Officer:</strong>
+            {{ crime.officer_name or "Not assigned" }}
+        </p>
+        <p class="mb-1">
+            <strong>Crime Date:</strong> {{ crime.crime_date or "-" }} |
+            <strong>Reported:</strong> {{ crime.reported_date or "-" }}
+        </p>
+        <p class="mb-1">
+            <strong>Current Status:</strong> {{ crime.status }}
+        </p>
+
+        <form method="POST" action="{{ url_for('update_crime_status', crime_id=crime.crime_id) }}"
+              class="row g-2 mt-3">
+            <div class="col-md-4">
+                <label class="form-label">Change Status</label>
+                <select name="status" class="form-select">
+                    {% for st in case_statuses %}
+                        <option value="{{ st }}" {% if st == crime.status %}selected{% endif %}>
+                            {{ st }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-warning w-100">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <h5>All Sections in this Case</h5>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Section</th>
+                    <th>Offence</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if sections %}
+                    {% for s in sections %}
+                    <tr>
+                        <td>{{ s.code }} {{ s.section_no }}</td>
+                        <td>{{ s.offence_name }}</td>
+                        <td>{{ s.role }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">Only primary section is stored.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <h5>Persons Involved</h5>
+        <table class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Role in Case</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if persons %}
+                    {% for p in persons %}
+                    <tr>
+                        <td>{{ p.full_name }}</td>
+                        <td>{{ p.person_type }}</td>
+                        <td>{{ p.role_in_case }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            No persons linked yet (victims/accused/witness).
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<a href="{{ url_for('crimes_list') }}" class="btn btn-secondary mt-2">Back to List</a>
+{% endblock %}
